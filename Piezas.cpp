@@ -22,6 +22,19 @@
 **/
 Piezas::Piezas()
 {
+ std::vector<Piece> column;
+ for(int i = 0; i < BOARD_ROWS; i++)
+ {
+  for(int j = 0; j < BOARD_COLS; j++)
+  {
+   //board[i][j] = Blank;
+   column.push_back(Blank);
+  }
+  board.push_back(column);
+ }
+
+ turn = X;
+
 }
 
 /**
@@ -30,6 +43,15 @@ Piezas::Piezas()
 **/
 void Piezas::reset()
 {
+
+ for(int i = 0; i < BOARD_COLS; i++)
+ {
+  for(int j = 0; j < BOARD_ROWS; j++)
+  {
+   board[j][i] = Blank;
+  }
+ }
+
 }
 
 /**
@@ -42,7 +64,47 @@ void Piezas::reset()
 **/ 
 Piece Piezas::dropPiece(int column)
 {
-    return Blank;
+
+ bool blnk = 0;
+ if(column <= 3 && column >= 0)
+ {
+  for(int i = 0; i < BOARD_ROWS; i++)
+  {
+   if(board[i][column] == Blank)
+   {
+    if(turn == O)
+    {
+     board[i][column] = O;
+     turn = X;
+     return O;
+    }
+    else if(turn == X)
+    {
+     board[i][column] = X;
+     turn = O;
+     return X;
+    }
+   }
+   blnk = 1;
+  }
+
+  if(turn == O)
+  {
+    turn = X;
+  }
+  else if(turn == X)
+  {
+    turn = O;
+  }
+  
+  if(blnk == 1)
+  {
+   return Blank;
+  }
+
+  //return Invalid;
+ }
+ return Invalid;
 }
 
 /**
@@ -51,7 +113,13 @@ Piece Piezas::dropPiece(int column)
 **/
 Piece Piezas::pieceAt(int row, int column)
 {
-    return Blank;
+
+ if(column > 3 || column < 0 || row > 2 || row < 0)
+ {
+  return Invalid;
+ }
+ return board[column][row];
+
 }
 
 /**
@@ -62,8 +130,114 @@ Piece Piezas::pieceAt(int row, int column)
  * the most adjacent pieces in a single line. Lines can go either vertically
  * or horizontally. If both X's and O's have the same max number of pieces in a
  * line, it is a tie.
+* Board coordinates [row,col] should match with:
+ * [2,0][2,1][2,2][2,3]
+ * [1,0][1,1][1,2][1,3]
+ * [0,0][0,1][0,2][0,3]
 **/
 Piece Piezas::gameState()
 {
+
+ int Xmax = 0;
+ int Omax = 0;
+ int Xtem = 0;
+ int Otem = 0;
+
+ for(int i = 0; i < BOARD_COLS; i++)
+ {
+  for(int j = 0; j < BOARD_ROWS; j++)
+  {
+   if(board[i][j] == Blank || board[i][j] == Invalid)
+   {
+    return Invalid;
+   }
+   else if(board[i][j] == O)
+   {
+    Otem++;
+    if(Xtem > Xmax)
+    {
+     Xmax = Xtem; 
+    }
+    Xtem = 0;
+   }
+   else if(board[i][j] == X)
+   {
+    Xtem++;
+    if(Otem > Omax)
+    {
+     Omax = Otem;
+    }
+    Otem = 0;
+   }
+  }
+
+  if(Xtem > Xmax)
+    {
+     Xmax = Xtem;
+    }
+  if(Otem > Omax)
+    {
+     Omax = Otem;
+    }
+    Otem = 0;
+    Xtem = 0;
+ }
+
+
+ for(int i = 0; i < BOARD_ROWS; i++)
+ {
+  for(int j = 0; j < BOARD_COLS; j++)
+  {
+//
+   if(board[j][i] == Blank || board[j][i] == Invalid)
+   {
+    return Invalid;
+   }
+   else if(board[j][i] == O)
+   {
+    Otem++;
+    if(Xtem > Xmax)
+    {
+     Xmax = Xtem;
+    }
+    Xtem = 0;
+   }
+   else if(board[j][i] == X)
+   {
+    Xtem++;
+    if(Otem > Omax)
+    {
+     Omax = Otem;
+    }
+    Otem = 0;
+   }
+  } 
+
+  if(Xtem > Xmax)
+  {
+   Xmax = Xtem;
+  }
+  if(Otem > Omax)
+  {
+   Omax = Otem;
+  }
+  Otem = 0;
+  Xtem = 0;
+ }
+
+
+ if(Omax > Xmax)
+ {
+  return O;
+ }
+ else if(Xmax > Omax)
+ {
+  return X;
+ }
+ else if(Omax == Xmax)
+ {
+  return Blank;
+ }
+
     return Blank;
 }
